@@ -158,11 +158,14 @@ services:
   # Nombre único (NO "nginx") para no colisionar en Traefik con el servicio
   # nginx de otros proyectos del mismo servidor Dokploy.
   legado-proxy:
-    image: nginx:1.27-alpine
+    # La config se hornea en la imagen (ver infra/nginx/Dockerfile), NO se monta
+    # por volumen. Así cada Redeploy reconstruye y recrea el proxy con la config
+    # actual, sin restart manual ni problemas de inode con bind-mounts.
+    build:
+      context: ./infra/nginx
+      dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./infra/nginx/dokploy.conf:/etc/nginx/conf.d/default.conf:ro
       - nginx_cache:/var/cache/nginx
     depends_on:
       - backend
