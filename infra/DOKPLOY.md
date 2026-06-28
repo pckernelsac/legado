@@ -73,6 +73,11 @@ python -m app.cli create-superadmin admin@legadoeterno.com 'TU_PASSWORD_FUERTE' 
 
 Las migraciones (`alembic upgrade head`) ya se ejecutan solas en `scripts/start.sh`.
 
+### Restablecer contraseña de un usuario (p. ej. super admin)
+```bash
+python -m app.cli reset-password admin@legadoeterno.com 'NUEVO_PASSWORD'
+```
+
 ## Verificación
 - `https://<dominio>/`            → carga la SPA.
 - `https://<dominio>/api/health`  → responde el backend (vía nginx, prefijo strip).

@@ -6,6 +6,7 @@ Uso:
     python -m app.cli seed-plans
     python -m app.cli sync-plans
     python -m app.cli create-superadmin <email> <password> <full_name>
+    python -m app.cli reset-password <email> <new_password>
 """
 from __future__ import annotations
 
@@ -139,6 +140,22 @@ async def create_superadmin(email: str, password: str, full_name: str) -> None:
     print(f"✓ Super admin creado: {email}")
 
 
+async def reset_password(email: str, new_password: str) -> None:
+    async with AsyncSessionFactory() as session:
+        users = UserRepository(session)
+        user = await users.get_by_email(email)
+        if user is None:
+            print(f"✗ No existe un usuario con email: {email}")
+            return
+        await session.execute(
+            update(User)
+            .where(User.id == user.id)
+            .values(hashed_password=hash_password(new_password))
+        )
+        await session.commit()
+    print(f"✓ Contraseña actualizada para: {email}")
+
+
 def main() -> None:
     args = sys.argv[1:]
     if not args:
@@ -153,6 +170,8 @@ def main() -> None:
         asyncio.run(sync_plans())
     elif cmd == "create-superadmin" and len(args) == 4:
         asyncio.run(create_superadmin(args[1], args[2], args[3]))
+    elif cmd == "reset-password" and len(args) == 3:
+        asyncio.run(reset_password(args[1], args[2]))
     else:
         print(__doc__)
 
