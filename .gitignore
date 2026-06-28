@@ -1,0 +1,34 @@
+# Entorno
+.env
+.env.local
+.env.*.local
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+.vite/
+*.log
+npm-debug.log*
+
+# Infra / secretos
+infra/nginx/certs/*.pem
+backups/
+
+# Editores
+.vscode/
+.idea/
+.DS_Store
+
+# Claude Code (config local)
+.claude/settings.local.json

@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #008931;
+    --brand-hover: #006d27;
+    --brand-light: #e7f8ee;
+    --brand-gold: #c8a97e;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  ::selection {
+    background: var(--brand-light);
+    color: var(--brand-hover);
+  }
+}
+
+@layer components {
+  /* Skeleton loader con shimmer */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-muted;
+  }
+  .skeleton::after {
+    @apply absolute inset-0;
+    content: "";
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent
+    );
+    animation: shimmer 1.6s infinite;
+  }
+
+  /* Gradiente de marca para hero */
+  .bg-brand-gradient {
+    background: radial-gradient(
+        1200px 600px at 70% -10%,
+        rgba(0, 137, 49, 0.1),
+        transparent 60%
+      ),
+      radial-gradient(800px 400px at 10% 10%, rgba(200, 169, 126, 0.12), transparent 55%),
+      #fafafa;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(120deg, #008931, #00b34a 60%, #c8a97e);
+  }
+}

@@ -1,0 +1,68 @@
+# ============================================================================
+# Override de desarrollo. Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# ============================================================================
+name: legadoeterno
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  # Captura de email en desarrollo: UI web en http://localhost:8025
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # UI web
+    networks: [backend]
+
+  backend:
+    build:
+      target: development
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: development
+      SMTP_HOST: mailhog
+      SMTP_PORT: "1025"
+      SMTP_TLS: "false"
+      SMTP_USER: ""
+      SMTP_PASSWORD: ""
+
+  celery-worker:
+    volumes:
+      - ./backend:/app
+    environment:
+      SMTP_HOST: mailhog
+      SMTP_PORT: "1025"
+      SMTP_TLS: "false"
+      SMTP_USER: ""
+      SMTP_PASSWORD: ""
+
+  frontend:
+    build:
+      target: development
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+
+  # En desarrollo accedemos directo a los servicios; nginx no es necesario.
+  nginx:
+    profiles: ["production"]
