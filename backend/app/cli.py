@@ -7,6 +7,7 @@ Uso:
     python -m app.cli sync-plans
     python -m app.cli create-superadmin <email> <password> <full_name>
     python -m app.cli reset-password <email> <new_password>
+    python -m app.cli bootstrap   # idempotente: roles + planes + super admin (env)
 """
 from __future__ import annotations
 
@@ -156,6 +157,36 @@ async def reset_password(email: str, new_password: str) -> None:
     print(f"✓ Contraseña actualizada para: {email}")
 
 
+async def bootstrap() -> None:
+    """Arranque idempotente para cada deploy (lo llama scripts/start.sh):
+    - Crea roles/permisos solo si aún no existen (evita permisos duplicados).
+    - Sincroniza los planes (sync-plans ya es idempotente).
+    - Crea el super admin desde ADMIN_EMAIL/ADMIN_PASSWORD SOLO si no existe;
+      nunca pisa la contraseña de un usuario ya creado.
+    Seguro de correr en cada arranque.
+    """
+    from app.core.config import settings
+
+    async with AsyncSessionFactory() as session:
+        has_super_admin_role = await RoleRepository(session).get_by_name(RoleName.SUPER_ADMIN)
+    if has_super_admin_role is None:
+        await seed_roles()
+    else:
+        print("· bootstrap: roles ya existen, omito seed-roles.")
+
+    await sync_plans()
+
+    email = settings.ADMIN_EMAIL.strip()
+    if not email or not settings.ADMIN_PASSWORD:
+        print("· bootstrap: ADMIN_EMAIL/ADMIN_PASSWORD no definidos, omito super admin.")
+        return
+    async with AsyncSessionFactory() as session:
+        if await UserRepository(session).get_by_email(email):
+            print(f"· bootstrap: super admin ya existe ({email}), no se modifica.")
+            return
+    await create_superadmin(email, settings.ADMIN_PASSWORD, settings.ADMIN_FULL_NAME or "Admin")
+
+
 def main() -> None:
     args = sys.argv[1:]
     if not args:
@@ -172,6 +203,8 @@ def main() -> None:
         asyncio.run(create_superadmin(args[1], args[2], args[3]))
     elif cmd == "reset-password" and len(args) == 3:
         asyncio.run(reset_password(args[1], args[2]))
+    elif cmd == "bootstrap":
+        asyncio.run(bootstrap())
     else:
         print(__doc__)
 

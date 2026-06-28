@@ -7,6 +7,9 @@ set -e
 echo "==> Aplicando migraciones Alembic..."
 alembic upgrade head
 
+echo "==> Bootstrap idempotente (roles, planes, super admin)..."
+python -m app.cli bootstrap || echo "WARN: bootstrap falló; continúo el arranque."
+
 echo "==> Lanzando Gunicorn (${WORKERS:-4} workers Uvicorn)..."
 exec gunicorn app.main:app \
     --worker-class uvicorn.workers.UvicornWorker \

@@ -60,6 +60,14 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool = True
     COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
 
+    # --- Bootstrap super admin (arranque automático en deploy) --------------
+    # Si ADMIN_EMAIL y ADMIN_PASSWORD están definidos, el comando `bootstrap`
+    # (que corre en start.sh) crea el super admin SOLO si aún no existe. Nunca
+    # sobrescribe la contraseña de un usuario ya creado.
+    ADMIN_EMAIL: str = ""
+    ADMIN_PASSWORD: str = ""
+    ADMIN_FULL_NAME: str = "Admin"
+
     # --- PostgreSQL ---------------------------------------------------------
     POSTGRES_HOST: str = "postgres"
     POSTGRES_PORT: int = 5432

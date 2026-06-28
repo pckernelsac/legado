@@ -62,16 +62,24 @@ Tras fijar los dominios, actualiza en Environment:
 Pulsa **Deploy**. Orden esperado: redis/minio sanos → backend (migra Alembic y
 arranca Gunicorn) → frontend (build) → nginx.
 
-### 6. Datos iniciales (primer deploy)
-En la pestaña de terminal del servicio `backend` (o `docker exec`):
+### 6. Datos iniciales (automático en cada deploy)
+`scripts/start.sh` ejecuta, tras migrar Alembic, `python -m app.cli bootstrap`,
+que es **idempotente** y deja todo listo sin intervención manual:
+- crea roles/permisos solo si faltan,
+- sincroniza los planes (`sync-plans`),
+- crea el super admin desde `ADMIN_EMAIL`/`ADMIN_PASSWORD` **solo si no existe**
+  (nunca pisa la contraseña de un usuario ya creado).
+
+Por eso basta con definir `ADMIN_EMAIL` y `ADMIN_PASSWORD` en el Environment de
+Dokploy (ver `.env.dokploy.example`). Si dejas `ADMIN_PASSWORD` vacío, el paso del
+super admin se omite y puedes crearlo a mano:
 
 ```bash
-python -m app.cli seed-roles
-python -m app.cli seed-plans
 python -m app.cli create-superadmin admin@legadoeterno.com 'TU_PASSWORD_FUERTE' 'Admin'
 ```
 
-Las migraciones (`alembic upgrade head`) ya se ejecutan solas en `scripts/start.sh`.
+Las migraciones (`alembic upgrade head`) y el `bootstrap` corren solos en
+`scripts/start.sh`.
 
 ### Restablecer contraseña de un usuario (p. ej. super admin)
 ```bash
