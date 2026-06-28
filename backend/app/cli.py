@@ -4,12 +4,15 @@ CLI de administración: seed de roles/permisos/planes y creación de super admin
 Uso:
     python -m app.cli seed-roles
     python -m app.cli seed-plans
+    python -m app.cli sync-plans
     python -m app.cli create-superadmin <email> <password> <full_name>
 """
 from __future__ import annotations
 
 import asyncio
 import sys
+
+from sqlalchemy import select, update
 
 from app.core.security import hash_password
 from app.infrastructure.database.session import AsyncSessionFactory
@@ -78,6 +81,40 @@ async def seed_plans() -> None:
     print("✓ Planes creados.")
 
 
+async def sync_plans() -> None:
+    """Idempotente: actualiza precios/moneda de los planes vigentes, crea los
+    que falten y desactiva tiers que ya no se ofrecen (p. ej. Corporativo).
+    Se desactivan (is_active=False), NO se borran, para no romper la FK de
+    suscripciones existentes. Seguro de correr varias veces."""
+    keep_tiers = {d["tier"] for d in _PLAN_DEFS}
+    async with AsyncSessionFactory() as session:
+        for definition in _PLAN_DEFS:
+            existing = (
+                await session.execute(
+                    select(Plan).where(Plan.tier == definition["tier"])
+                )
+            ).scalar_one_or_none()
+            if existing is None:
+                session.add(Plan(currency="PEN", is_active=True, **definition))
+                print(f"  + creado: {definition['name']}")
+            else:
+                for field, value in definition.items():
+                    setattr(existing, field, value)
+                existing.currency = "PEN"
+                existing.is_active = True
+                print(f"  ~ actualizado: {definition['name']}")
+
+        deactivated = await session.execute(
+            update(Plan)
+            .where(Plan.tier.notin_(keep_tiers), Plan.is_active.is_(True))
+            .values(is_active=False)
+        )
+        if deactivated.rowcount:
+            print(f"  - desactivados {deactivated.rowcount} plan(es) obsoletos")
+        await session.commit()
+    print("✓ Planes sincronizados.")
+
+
 async def create_superadmin(email: str, password: str, full_name: str) -> None:
     async with AsyncSessionFactory() as session:
         roles = RoleRepository(session)
@@ -112,6 +149,8 @@ def main() -> None:
         asyncio.run(seed_roles())
     elif cmd == "seed-plans":
         asyncio.run(seed_plans())
+    elif cmd == "sync-plans":
+        asyncio.run(sync_plans())
     elif cmd == "create-superadmin" and len(args) == 4:
         asyncio.run(create_superadmin(args[1], args[2], args[3]))
     else:
