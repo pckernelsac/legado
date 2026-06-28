@@ -33,17 +33,14 @@ _PERMISSIONS = [
 ]
 
 _PLAN_DEFS = [
-    dict(tier=PlanTier.BASIC, name="Básico", price_monthly=4.99, price_yearly=49,
+    dict(tier=PlanTier.BASIC, name="Básico", price_monthly=20, price_yearly=200,
          max_memorials=1, max_media_per_memorial=20, max_storage_mb=500,
          allow_video=False, allow_custom_qr=False, allow_ai_features=False),
-    dict(tier=PlanTier.FAMILY, name="Familiar", price_monthly=9.99, price_yearly=99,
+    dict(tier=PlanTier.FAMILY, name="Familiar", price_monthly=50, price_yearly=500,
          max_memorials=5, max_media_per_memorial=100, max_storage_mb=5000,
          allow_video=True, allow_custom_qr=True, allow_ai_features=False),
-    dict(tier=PlanTier.PREMIUM, name="Premium", price_monthly=19.99, price_yearly=199,
+    dict(tier=PlanTier.PREMIUM, name="Premium", price_monthly=80, price_yearly=800,
          max_memorials=20, max_media_per_memorial=500, max_storage_mb=20000,
-         allow_video=True, allow_custom_qr=True, allow_ai_features=True),
-    dict(tier=PlanTier.CORPORATE, name="Corporativo", price_monthly=99, price_yearly=999,
-         max_memorials=1000, max_media_per_memorial=1000, max_storage_mb=500000,
          allow_video=True, allow_custom_qr=True, allow_ai_features=True),
 ]
 
@@ -76,7 +73,7 @@ async def seed_roles() -> None:
 async def seed_plans() -> None:
     async with AsyncSessionFactory() as session:
         for definition in _PLAN_DEFS:
-            session.add(Plan(currency="USD", **definition))
+            session.add(Plan(currency="PEN", **definition))
         await session.commit()
     print("✓ Planes creados.")
 

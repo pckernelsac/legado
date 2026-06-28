@@ -94,8 +94,8 @@ function PlanPicker({
 
   if (isLoading) {
     return (
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="skeleton h-44 rounded-lg" />
         ))}
       </div>
@@ -103,7 +103,7 @@ function PlanPicker({
   }
 
   return (
-    <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {plans.map((plan) => (
         <PlanCard
           key={plan.id}
@@ -155,7 +155,7 @@ function PlanCard({
         )}
       </div>
       <p className="mt-1 text-2xl font-extrabold">
-        ${Number(plan.price_monthly)}
+        S/{Number(plan.price_monthly)}
         <span className="text-sm font-normal text-foreground-muted">/mes</span>
       </p>
       <ul className="mt-3 flex-1 space-y-1.5 text-xs text-foreground-muted">

@@ -8,14 +8,14 @@ import { cn } from "@/lib/utils";
 const PLANS = [
   {
     name: "Básico",
-    price: "4.99",
+    price: "20",
     description: "Para honrar a un ser querido.",
     features: ["1 memorial", "20 fotos", "QR PNG", "Libro de condolencias", "Velas virtuales"],
     highlighted: false,
   },
   {
     name: "Familiar",
-    price: "9.99",
+    price: "50",
     description: "Para toda la familia.",
     features: [
       "5 memoriales",
@@ -29,7 +29,7 @@ const PLANS = [
   },
   {
     name: "Premium",
-    price: "19.99",
+    price: "80",
     description: "La experiencia completa.",
     features: [
       "20 memoriales",
@@ -38,20 +38,6 @@ const PLANS = [
       "Restauración de fotos",
       "Soporte prioritario",
       "Dominio personalizado",
-    ],
-    highlighted: false,
-  },
-  {
-    name: "Corporativo",
-    price: "99",
-    description: "Para funerarias y cementerios.",
-    features: [
-      "Memoriales ilimitados",
-      "Multi-usuario",
-      "Marca propia",
-      "API y panel admin",
-      "QR masivos",
-      "Gestor de cuenta",
     ],
     highlighted: false,
   },
@@ -70,7 +56,7 @@ export function PlansSection() {
           </p>
         </Reveal>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-4">
+        <div className="mt-16 grid gap-6 md:grid-cols-3">
           {PLANS.map((plan, i) => (
             <Reveal key={plan.name} delay={i * 0.08}>
               <div
@@ -89,7 +75,7 @@ export function PlansSection() {
                 <h3 className="text-lg font-semibold">{plan.name}</h3>
                 <p className="mt-1 text-sm text-foreground-muted">{plan.description}</p>
                 <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold">${plan.price}</span>
+                  <span className="text-4xl font-extrabold">S/{plan.price}</span>
                   <span className="text-sm text-foreground-muted">/mes</span>
                 </div>
                 <ul className="mt-6 flex-1 space-y-3">

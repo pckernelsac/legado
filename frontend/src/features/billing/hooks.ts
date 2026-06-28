@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
 
-export type PlanTier = "basic" | "family" | "premium" | "corporate";
+export type PlanTier = "basic" | "family" | "premium";
 
 export interface Plan {
   id: string;
