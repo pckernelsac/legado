@@ -42,10 +42,14 @@ a Git).
 
 ### 4. Dominios
 Pestaña **Domains**:
-- Servicio `nginx`, puerto `80` → dominio principal (p.ej. el `*.traefik.me`
+- Servicio `legado-proxy`, puerto `80` → dominio principal (p.ej. el sslip.io
   generado por Dokploy o tu dominio real). HTTPS/Let's Encrypt activado.
-- Servicio `minio`, puerto `9000` → subdominio para medios.
+- Servicio `legado-minio`, puerto `9000` → subdominio para medios.
   Este host debe coincidir con `MINIO_PUBLIC_ENDPOINT`.
+
+> ⚠️ Los servicios expuestos usan nombres ÚNICOS (`legado-proxy`, `legado-minio`)
+> a propósito: si se llamaran `nginx`/`minio` colisionarían en Traefik con otros
+> proyectos del mismo servidor Dokploy y el dominio acabaría sirviendo otra app.
 
 Tras fijar los dominios, actualiza en Environment:
 `DOMAIN`, `PUBLIC_BASE_URL`, `API_BASE_URL`, `BACKEND_CORS_ORIGINS`,
